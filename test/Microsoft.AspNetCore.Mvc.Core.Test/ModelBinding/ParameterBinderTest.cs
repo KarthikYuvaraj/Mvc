@@ -89,7 +89,7 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding
             var parameterBinder = new ParameterBinder(
                 metadataProvider,
                 factory.Object,
-                CreateMockValidator());
+                CreateMockValidatorProvider());
 
             var controllerContext = new ControllerContext();
 
@@ -139,7 +139,7 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding
             var argumentBinder = new ParameterBinder(
                 metadataProvider,
                 factory.Object,
-                CreateMockValidator());
+                CreateMockValidatorProvider());
 
             var valueProvider = new SimpleValueProvider
             {
@@ -154,17 +154,12 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding
             Assert.True(binderExecuted);
         }
 
-        private static IParameterValidator CreateMockValidator()
+        private static IModelValidatorProvider CreateMockValidatorProvider()
         {
-            var mockValidator = new Mock<IParameterValidator>();
+            var mockValidator = new Mock<IModelValidatorProvider>();
             mockValidator
-                .Setup(o => o.Validate(
-                    It.IsAny<ActionContext>(),
-                    It.IsAny<ParameterDescriptor>(),
-                    It.IsAny<ModelMetadata>(),
-                    It.IsAny<bool>(),
-                    It.IsAny<object>(),
-                    It.IsAny<ModelBindingContext>()));
+                .Setup(o => o.CreateValidators(
+                    It.IsAny<ModelValidatorProviderContext>()));
             return mockValidator.Object;
         }
 

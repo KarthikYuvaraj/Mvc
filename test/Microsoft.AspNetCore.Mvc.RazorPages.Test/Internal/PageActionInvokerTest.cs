@@ -1249,11 +1249,11 @@ namespace Microsoft.AspNetCore.Mvc.RazorPages.Internal
 
         private static ParameterBinder GetParameterBinder(
             IModelBinderFactory factory = null,
-            IParameterValidator validator = null)
+            IModelValidatorProvider validator = null)
         {
             if (validator == null)
             {
-                validator = CreateMockValidator();
+                validator = CreateMockValidatorProvider();
             }
 
             if (factory == null)
@@ -1267,17 +1267,12 @@ namespace Microsoft.AspNetCore.Mvc.RazorPages.Internal
                 validator);
         }
 
-        private static IParameterValidator CreateMockValidator()
+        private static IModelValidatorProvider CreateMockValidatorProvider()
         {
-            var mockValidator = new Mock<IParameterValidator>(MockBehavior.Strict);
+            var mockValidator = new Mock<IModelValidatorProvider>(MockBehavior.Strict);
             mockValidator
-                .Setup(o => o.Validate(
-                    It.IsAny<ActionContext>(),
-                    It.IsAny<ParameterDescriptor>(),
-                    It.IsAny<ModelMetadata>(),
-                    It.IsAny<bool>(),
-                    It.IsAny<object>(),
-                    It.IsAny<ModelBindingContext>()));
+                .Setup(o => o.CreateValidators(
+                    It.IsAny<ModelValidatorProviderContext>()));
             return mockValidator.Object;
         }
 

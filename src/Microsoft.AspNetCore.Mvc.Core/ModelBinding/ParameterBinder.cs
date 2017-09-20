@@ -25,11 +25,11 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding
         /// </summary>
         /// <param name="modelMetadataProvider">The <see cref="IModelMetadataProvider"/>.</param>
         /// <param name="modelBinderFactory">The <see cref="IModelBinderFactory"/>.</param>
-        /// <param name="validatorProviders">The <see cref="IModelValidatorProvider"/> instances.</param>
+        /// <param name="validatorProvider">The <see cref="IModelValidatorProvider"/>.</param>
         public ParameterBinder(
             IModelMetadataProvider modelMetadataProvider,
             IModelBinderFactory modelBinderFactory,
-            IList<IModelValidatorProvider> validatorProviders)
+            IModelValidatorProvider validatorProvider)
         {
             if (modelMetadataProvider == null)
             {
@@ -44,7 +44,7 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding
             _modelMetadataProvider = modelMetadataProvider;
             _modelBinderFactory = modelBinderFactory;
             _validatorCache = new ValidatorCache();
-            _validatorProvider = new CompositeModelValidatorProvider(validatorProviders);
+            _validatorProvider = validatorProvider;
         }
 
         /// <summary>

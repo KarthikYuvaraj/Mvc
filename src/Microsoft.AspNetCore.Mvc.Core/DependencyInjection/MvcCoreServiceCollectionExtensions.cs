@@ -230,7 +230,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 var options = s.GetRequiredService<IOptions<MvcOptions>>().Value;
                 var metadataProvider = s.GetRequiredService<IModelMetadataProvider>();
                 var modelBinderFactory = s.GetRequiredService<IModelBinderFactory>();
-                return new ParameterBinder(metadataProvider, modelBinderFactory, options.ModelValidatorProviders);
+                var modelValidatorProvider = new CompositeModelValidatorProvider(options.ModelValidatorProviders);
+                return new ParameterBinder(metadataProvider, modelBinderFactory, modelValidatorProvider);
             });
 
             //

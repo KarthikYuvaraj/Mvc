@@ -177,12 +177,7 @@ namespace Microsoft.AspNetCore.Mvc.Internal
             // Assert
             mockValidator
                 .Verify(o => o.Validate(
-                    It.IsAny<ActionContext>(),
-                    It.IsAny<ParameterDescriptor>(),
-                    It.IsAny<ModelMetadata>(),
-                    It.IsAny<bool>(),
-                    It.IsAny<object>(),
-                    It.IsAny<ModelBindingContext>()),
+                    It.IsAny<ModelValidationContext>()),
             Times.Once());
         }
 
@@ -225,12 +220,7 @@ namespace Microsoft.AspNetCore.Mvc.Internal
             // Assert
             mockValidator
                 .Verify(o => o.Validate(
-                    It.IsAny<ActionContext>(),
-                    It.IsAny<ParameterDescriptor>(),
-                    It.IsAny<ModelMetadata>(),
-                    It.IsAny<bool>(),
-                    It.IsAny<object>(),
-                    It.IsAny<ModelBindingContext>()),
+                    It.IsAny<ModelValidationContext>()),
                 Times.Never());
         }
 
@@ -266,12 +256,7 @@ namespace Microsoft.AspNetCore.Mvc.Internal
             // Assert
             mockValidator
                 .Verify(o => o.Validate(
-                    It.IsAny<ActionContext>(),
-                    It.IsAny<ParameterDescriptor>(),
-                    It.IsAny<ModelMetadata>(),
-                    It.IsAny<bool>(),
-                    It.IsAny<object>(),
-                    It.IsAny<ModelBindingContext>()),
+                    It.IsAny<ModelValidationContext>()),
                 Times.Once());
         }
 
@@ -313,12 +298,7 @@ namespace Microsoft.AspNetCore.Mvc.Internal
             // Assert
             mockValidator
                 .Verify(o => o.Validate(
-                    It.IsAny<ActionContext>(),
-                    It.IsAny<ParameterDescriptor>(),
-                    It.IsAny<ModelMetadata>(),
-                    It.IsAny<bool>(),
-                    It.IsAny<object>(),
-                    It.IsAny<ModelBindingContext>()),
+                    It.IsAny<ModelValidationContext>()),
                 Times.Never());
         }
 
@@ -940,7 +920,7 @@ namespace Microsoft.AspNetCore.Mvc.Internal
 
         private static ParameterBinder GetParameterBinder(
             IModelBinderFactory factory = null,
-            IParameterValidator validator = null)
+            IModelValidator validator = null)
         {
             if (validator == null)
             {
@@ -952,23 +932,30 @@ namespace Microsoft.AspNetCore.Mvc.Internal
                 factory = TestModelBinderFactory.CreateDefault();
             }
 
+            var validatorProvider = new Mock<IModelValidatorProvider>();
+            validatorProvider
+                .Setup(p => p.CreateValidators(It.IsAny<ModelValidatorProviderContext>()))
+                .Callback<ModelValidatorProviderContext>(context =>
+                {
+                    foreach (var result in context.Results)
+                    {
+                        result.Validator = validator;
+                        result.IsReusable = true;
+                    }
+                });
+
             return new ParameterBinder(
                 TestModelMetadataProvider.CreateDefaultProvider(),
                 factory,
-                validator);
+                validatorProvider.Object);
         }
 
-        private static Mock<IParameterValidator> CreateMockValidator()
+        private static Mock<IModelValidator> CreateMockValidator()
         {
-            var mockValidator = new Mock<IParameterValidator>(MockBehavior.Strict);
+            var mockValidator = new Mock<IModelValidator>(MockBehavior.Strict);
             mockValidator
                 .Setup(o => o.Validate(
-                    It.IsAny<ActionContext>(),
-                    It.IsAny<ParameterDescriptor>(),
-                    It.IsAny<ModelMetadata>(),
-                    It.IsAny<bool>(),
-                    It.IsAny<object>(),
-                    It.IsAny<ModelBindingContext>()));
+                    It.IsAny<ModelValidationContext>()));
             return mockValidator;
         }
 

@@ -77,7 +77,7 @@ namespace Microsoft.AspNetCore.Mvc.IntegrationTests
             return new ParameterBinder(
                 metadataProvider,
                 new ModelBinderFactory(metadataProvider, options),
-                GetParameterValidator(metadataProvider, options));
+                new CompositeModelValidatorProvider(GetModelValidatorProviders(options)));
         }
 
         public static IObjectModelValidator GetObjectValidator(
@@ -85,15 +85,6 @@ namespace Microsoft.AspNetCore.Mvc.IntegrationTests
             IOptions<MvcOptions> options = null)
         {
             return new DefaultObjectValidator(
-                metadataProvider,
-                GetModelValidatorProviders(options));
-        }
-
-        public static IParameterValidator GetParameterValidator(
-            IModelMetadataProvider metadataProvider,
-            IOptions<MvcOptions> options = null)
-        {
-            return new DefaultParameterValidator(
                 metadataProvider,
                 GetModelValidatorProviders(options));
         }
