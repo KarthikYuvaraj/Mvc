@@ -184,48 +184,31 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding
             await modelBinder.BindModelAsync(modelBindingContext);
 
             var modelBindingResult = modelBindingContext.Result;
-
-            Validate(
-                actionContext,
-                parameter,
-                metadata,
-                modelBindingContext,
-                modelBindingResult);
-
-            return modelBindingResult;
-        }
-
-        private void Validate(
-            ActionContext actionContext,
-            ParameterDescriptor parameterDescriptor,
-            ModelMetadata modelMetadata,
-            ModelBindingContext bindingContext,
-            ModelBindingResult modelBindingResult)
-        {
-            if (modelBindingResult.IsModelSet || modelMetadata.IsRequired)
+            if (!modelBindingResult.IsModelSet && metadata.IsBindingRequired)
             {
+                // Enforce BindingBehavior.Required (e.g., [BindRequired])
+                var fieldName = modelBindingContext.FieldName ?? modelBindingContext.BinderModelName;
+                var message = metadata.ModelBindingMessageProvider.MissingBindRequiredValueAccessor(fieldName);
+                actionContext.ModelState.TryAddModelError(modelBindingContext.ModelName, message);
+            }
+            else if (modelBindingResult.IsModelSet || metadata.IsRequired)
+            {
+                // Enforce any other validation rules
                 var visitor = new ValidationVisitor(
                     actionContext,
                     _validatorProvider,
                     _validatorCache,
                     _modelMetadataProvider,
-                    bindingContext.ValidationState);
+                    modelBindingContext.ValidationState);
 
-                var isValid = visitor.Validate(modelMetadata, bindingContext.ModelName, modelBindingResult.Model, skipNullAtTopLevel: !modelMetadata.IsRequired);
-                if (!isValid)
-                {
-                    // Only add one validation error in the case where both [Required] and
-                    // [BindRequired] are specified
-                    return;
-                }
+                visitor.Validate(
+                    metadata,
+                    modelBindingContext.ModelName,
+                    modelBindingResult.Model,
+                    skipNullAtTopLevel: !metadata.IsRequired);
             }
 
-            if (!modelBindingResult.IsModelSet && modelMetadata.IsBindingRequired)
-            {
-                var fieldName = bindingContext.FieldName ?? modelMetadata.BinderModelName;
-                var message = modelMetadata.ModelBindingMessageProvider.MissingBindRequiredValueAccessor(fieldName);
-                actionContext.ModelState.TryAddModelError(bindingContext.ModelName, message);
-            }
+            return modelBindingResult;
         }
     }
 }
