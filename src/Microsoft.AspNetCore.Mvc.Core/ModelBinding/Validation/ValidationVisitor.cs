@@ -79,7 +79,7 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Validation
         /// <returns><c>true</c> if the object is valid, otherwise <c>false</c>.</returns>
         public bool Validate(ModelMetadata metadata, string key, object model)
         {
-            return Validate(metadata, key, model, skipNullAtTopLevel: true);
+            return Validate(metadata, key, model, alwaysValidateAtTopLevel: false);
         }
 
         /// <summary>
@@ -88,11 +88,11 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Validation
         /// <param name="metadata">The <see cref="ModelMetadata"/> associated with the model.</param>
         /// <param name="key">The model prefix key.</param>
         /// <param name="model">The model object.</param>
-        /// <param name="skipNullAtTopLevel">If <c>true</c>, regards <c>null</c> as a valid top-level value, regardless of other validation metadata.</param>
+        /// <param name="alwaysValidateAtTopLevel">If <c>true</c>, applies validation rules even if the top-level value is <c>null</c>.</param>
         /// <returns><c>true</c> if the object is valid, otherwise <c>false</c>.</returns>
-        public bool Validate(ModelMetadata metadata, string key, object model, bool skipNullAtTopLevel)
+        public bool Validate(ModelMetadata metadata, string key, object model, bool alwaysValidateAtTopLevel)
         {
-            if (model == null && key != null && skipNullAtTopLevel)
+            if (model == null && key != null && !alwaysValidateAtTopLevel)
             {
                 var entry = _modelState[key];
                 if (entry != null && entry.ValidationState != ModelValidationState.Valid)

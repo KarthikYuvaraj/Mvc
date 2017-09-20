@@ -43,7 +43,7 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding
         /// </summary>
         /// <param name="modelMetadataProvider">The <see cref="IModelMetadataProvider"/>.</param>
         /// <param name="modelBinderFactory">The <see cref="IModelBinderFactory"/>.</param>
-        /// <param name="validator">The <see cref="IModelValidatorProvider"/>.</param>
+        /// <param name="validator">The <see cref="IObjectModelValidator"/>.</param>
         [Obsolete("This constructor is obsolete and will be removed in a future version. The recommended alternative is the overload that takes a " + nameof(IModelValidatorProvider) + " instead of a " + nameof(IObjectModelValidator) + ".")]
         public ParameterBinder(
             IModelMetadataProvider modelMetadataProvider,
@@ -270,7 +270,7 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding
                     metadata,
                     modelBindingContext.ModelName,
                     modelBindingResult.Model,
-                    skipNullAtTopLevel: !metadata.IsRequired);
+                    alwaysValidateAtTopLevel: metadata.IsRequired);
             }
         }
     }
