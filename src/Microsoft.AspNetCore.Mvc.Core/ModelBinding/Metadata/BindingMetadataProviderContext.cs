@@ -49,7 +49,6 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Metadata
         /// </summary>
         public IReadOnlyList<object> ParameterAttributes { get; }
 
-
         /// <summary>
         /// Gets the property attributes.
         /// </summary>
